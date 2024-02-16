@@ -1,0 +1,30 @@
+ACM's Thanos S3 bucket creation automation is now implemented and tested, though not entirely. The changes are split across three pull requests:
+
+1. **aws-roles-as-service**:
+   - [URL: https://test]
+   - **Notes**:
+     - Policies were updated to enable the openshiftinstaller role to create S3 buckets using the pipeline.
+
+2. **openshift-aws-ipi**:
+   - [URL: https://test]
+   - **Notes**:
+     - Added the account ID as a key-value variable to manage cluster name and domain name for both testing and production cluster S3 bucket creation.
+     - Included customer-provided KMS values for S3 bucket access.
+     - Updated S3 bucket Terraform tag value to allow for force deletion if necessary, controlled by a variable in tf.vars.
+
+3. **argocd-applications**:
+   - [URL: https://test]
+   - **Notes**:
+     - Implemented a Helm chart for building observability on the cluster.
+     - Addressed prerequisites for building MCO (Multicluster Observability).
+     - Converted all templates to sync-waves instead of using Helm hooks for smoother day-2 operations.
+     - Currently, autosync is disabled, requiring manual synchronization of the Argo application.
+     - Added labeling of namespaces for `ingress=true`.
+
+**Next Steps**:
+- Review all pull requests.
+- Commence deployment of necessary components for Thanos on the production ACM instance.
+- Disable observability for all managed clusters in the production ACM.
+- Enable observability for clusters incrementally (e.g., POC, non-prod, PVS, prod) once Thanos is deployed.
+- Monitor S3 bucket usage closely.
+- Set up alert manager and fine-tune the Thanos setup.
