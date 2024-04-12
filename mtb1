@@ -1,0 +1,20 @@
+group_name="staff"
+user_name="username"  # Replace 'username' with the actual username you want to add to the group
+
+# Check if the group exists
+if grep -q "^$group_name:" /etc/group; then
+    echo "Group '$group_name' exists."
+    
+    # Check if the user exists
+    if id "$user_name" &>/dev/null; then
+        echo "User '$user_name' exists."
+        
+        # Add the user to the group
+        sudo usermod -aG "$group_name" "$user_name"
+        echo "User '$user_name' added to group '$group_name'."
+    else
+        echo "User '$user_name' does not exist."
+    fi
+else
+    echo "Group '$group_name' does not exist."
+fi
