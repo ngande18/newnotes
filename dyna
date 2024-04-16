@@ -1,4 +1,114 @@
-dependencies:
-  - name: dynatrace-operator
-    version: 0.15.0
-    repository: "https://raw.githubusercontent.com/Dynatrace/dynatrace-operator/master/config/helm/repos/stable"
+# Copyright 2021 Dynatrace LLC
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# may be set to "kubernetes", "openshift", "google"
+
+dynatrace-operator:
+  platform: "openshift"
+
+  image: ""
+  customPullSecret: ""
+  installCRD: true
+
+  operator:
+    nodeSelector: {}
+    tolerations: []
+    labels: []
+    annotations: []
+    apparmor: false
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 256Mi
+
+  webhook:
+    hostNetwork: false
+    nodeSelector: {}
+    tolerations: []
+    labels: []
+    annotations: []
+    apparmor: false
+    requests:
+      cpu: 300m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+    highAvailability: true
+
+  csidriver:
+    enabled: true
+    nodeSelector: {}
+    kubeletPath: "/var/lib/kubelet"
+    priorityClassValue: "1000000"
+    maxUnmountedVolumeAge: "1" # defined in days, must be a plain number, default is "7"
+    tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+      - effect: NoSchedule
+        key: ingress
+        operator: Exists        
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
+        operator: Exists
+      - effect: NoSchedule
+        key: dedicated
+        operator: Equal
+        value: redis 
+    labels: []
+    annotations: []
+    server:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 100Mi
+        limits:
+          cpu: 50m
+          memory: 100Mi
+    provisioner:
+      resources:
+        requests:
+          cpu: 300m
+          memory: 400Mi
+        limits:
+          cpu: 300m
+          memory: 400Mi
+    registrar:
+      resources:
+        requests:
+          cpu: 20m
+          memory: 60Mi
+        limits:
+          cpu: 20m
+          memory: 60Mi
+    livenessprobe:
+      resources:
+        requests:
+          cpu: 20m
+          memory: 60Mi
+        limits:
+          cpu: 20m
+          memory: 60Mi
+
+  securityContextConstraints:
+    enabled: true # Only applicable for Openshift
+
+  additionalPermissions:
+    pvcMonitoring: false
+
+namespace: dynatrace
+name: dynatrace
