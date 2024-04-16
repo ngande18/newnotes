@@ -1,0 +1,4 @@
+dependencies:
+  - name: dynatrace-operator
+    version: 0.15.0
+    repository: "https://raw.githubusercontent.com/Dynatrace/dynatrace-operator/master/config/helm/repos/stable"
