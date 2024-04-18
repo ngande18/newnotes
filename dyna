@@ -9,3 +9,10 @@
 {{- define "flavor" }}
 {{- if contains "infrapoc" .Values.cluster }}"infrapoc"{{ else if contains "poc" .Values.cluster }}"poc"{{ else if contains "nonprod" .Values.cluster }}"nonprod"{{ else if contains "pvs" .Values.cluster }}"pvs"{{ else if contains "prod" .Values.cluster }}"prod"{{end}}
 {{- end }}
+
+
+for n in $(oc get nodes -l node-role.kubernetes.io/master= -o name   | head -1); do echo $n; oc debug node/$n --as-root=true -- chroot /host sh -c "crictl exec `crictl ps --label io.kubernetes.container.name=etcdctl -q` etcdctl endpoint health"; done
+
+for i in `cat nodes.txt `\ndo\necho "----------------$i---------------";\nssh -i devops-1-prod_key -q -o StrictHostKeyChecking=no core@$i sudo  /opt/dynatrace/oneagent/agent/uninstall.sh\necho "---------------------------------";\ndone > uninstall_status.log
+
+wget https://github.com/Dynatrace/dynatrace-oneagent-operator/releases/download/v0.10.1/openshift.yaml
