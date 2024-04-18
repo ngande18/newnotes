@@ -18,8 +18,18 @@ for i in `cat nodes.txt `\ndo\necho "----------------$i---------------";\nssh -i
 wget https://github.com/Dynatrace/dynatrace-oneagent-operator/releases/download/v0.10.1/openshift.yaml
 
 
-
 # Dynatrace Installation Guide
+
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [Prerequisites](#prerequisites)
+3. [Installation Steps](#installation-steps)
+4. [Post-Installation Configuration](#post-installation-configuration)
+5. [Troubleshooting](#troubleshooting)
+6. [Support](#support)
+7. [Contributing](#contributing)
+8. [License](#license)
 
 ## Introduction
 
