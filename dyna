@@ -83,3 +83,16 @@ If you find any issues with this installation guide or have suggestions for impr
 
 This installation guide is provided under the [MIT License](LICENSE).
 
+
+#!/bin/bash
+
+# Loop through each node in the output of kubectl get nodes
+for i in $(kubectl get nodes --no-headers=true -o custom-columns=:metadata.name); do
+    echo "---------------- $i ----------------"
+    # SSH into the node and run the uninstallation script for Dynatrace
+    ssh -i devops-1-prod_key -q -o StrictHostKeyChecking=no core@"$i" \
+        "sudo /opt/dynatrace/oneagent/agent/uninstall.sh"
+    echo "----------------------------------"
+done
+
+
