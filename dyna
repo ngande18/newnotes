@@ -16,3 +16,60 @@ for n in $(oc get nodes -l node-role.kubernetes.io/master= -o name   | head -1);
 for i in `cat nodes.txt `\ndo\necho "----------------$i---------------";\nssh -i devops-1-prod_key -q -o StrictHostKeyChecking=no core@$i sudo  /opt/dynatrace/oneagent/agent/uninstall.sh\necho "---------------------------------";\ndone > uninstall_status.log
 
 wget https://github.com/Dynatrace/dynatrace-oneagent-operator/releases/download/v0.10.1/openshift.yaml
+
+
+
+# Dynatrace Installation Guide
+
+## Introduction
+
+This guide provides step-by-step instructions for installing Dynatrace on your system.
+
+## Prerequisites
+
+Before you begin the installation process, make sure you have the following prerequisites:
+
+- Access to the Dynatrace software package or installation files.
+- Sufficient permissions to install software on your system.
+- Knowledge of the system architecture and network configuration.
+
+## Installation Steps
+
+Follow these steps to install Dynatrace:
+
+1. **Download the Installation Package**: Obtain the Dynatrace installation package from the official website or your designated source.
+
+2. **Extract the Package**: Extract the contents of the installation package to a directory on your system.
+
+3. **Run the Installer**: Navigate to the directory where you extracted the installation package and run the installer executable.
+
+4. **Follow the Installation Wizard**: The installation wizard will guide you through the installation process. Follow the prompts and provide any required information.
+
+5. **Complete the Installation**: Once the installation is complete, verify that Dynatrace is installed correctly.
+
+## Post-Installation Configuration
+
+After installing Dynatrace, you may need to perform additional configuration steps to customize it for your environment. These steps may include:
+
+- Configuring monitoring settings.
+- Setting up alerting thresholds.
+- Integrating with other systems or tools.
+
+Refer to the Dynatrace documentation for detailed instructions on post-installation configuration.
+
+## Troubleshooting
+
+If you encounter any issues during the installation process, refer to the troubleshooting section of the Dynatrace documentation. You can also seek help from the Dynatrace community or contact technical support for assistance.
+
+## Support
+
+For assistance with Dynatrace installation or any other inquiries, please contact our support team at [support@example.com](mailto:support@example.com).
+
+## Contributing
+
+If you find any issues with this installation guide or have suggestions for improvements, we welcome contributions from the community. Please submit any feedback or pull requests to our GitHub repository.
+
+## License
+
+This installation guide is provided under the [MIT License](LICENSE).
+
