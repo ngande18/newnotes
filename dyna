@@ -96,3 +96,33 @@ for i in $(kubectl get nodes --no-headers=true -o custom-columns=:metadata.name)
 done
 
 
+
+# Dynatrace Integration into SAS Platform
+
+## Summary
+We have successfully integrated Dynatrace into our SAS platform and upgraded it to version 0.15.0. Here are the key takeaways:
+
+## Accomplishments
+- Addressed an issue with the scheduler node selector by temporarily adding an annotation on Dynatrace.
+- Managed to deploy the custom Dynakube despite dependency issues in the Helm chart, following guidance from Dynatrace documentation.
+- Implemented a setup where the Dynatrace operator is fetched from Artifactory, while OneAgent and ActiveGates are pulled from SAS agents with the latest tag.
+- Included Security Context Constraints (SCC) in the Helm chart to enhance security during deployment.
+- Thoroughly tested and updated the documentation for uninstallation procedures to ensure smooth operations.
+- Created a secret manually as part of the setup process.
+- Transitioned from using "ose" to "openshift" as a prefix for cluster identification, improving clarity for dashboarding purposes.
+- Utilized API commands to manually delete the old "oselab" entry in Dynatrace and re-registered with the new custom cluster name.
+- Implemented automatic cluster onboarding logic in Dynakube to streamline integration processes.
+- Tested a version lock for ActiveGate and OneAgents to ensure compatibility and stability.
+
+## Next Steps
+- Revise and update the manual installation procedure for clarity and accuracy.
+- Experiment with Helm hooks and weights to automate processes further, reducing manual intervention.
+- Conduct comprehensive testing, including testing the version lock for ActiveGate and OneAgents, to ensure all features work seamlessly with the new version, including data ingestion, application validation, and compatibility with the Openshift namespace.
+- Begin developing an automation pipeline for deployment to enhance efficiency and streamline the entire process.
+
+## Additional Information
+- **URL:** [google.com](https://www.google.com)
+
+Feel free to ask if you need more information or have any questions!
+
+
