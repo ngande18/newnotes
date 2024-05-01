@@ -28,3 +28,7 @@ ACM's Thanos S3 bucket creation automation is now implemented and tested, though
 - Enable observability for clusters incrementally (e.g., POC, non-prod, PVS, prod) once Thanos is deployed.
 - Monitor S3 bucket usage closely.
 - Set up alert manager and fine-tune the Thanos setup.
+
+
+
+", "error": "Could not autodiscover Falcon cloud region: Post \"https://api.crowdstrike.com/oauth2/token\": x509: certificate signed by unknown authority"}
