@@ -1,0 +1,16 @@
+apiVersion: trident.netapp.io/v1
+kind: TridentBackendConfig
+metadata:
+  name: backend-tbc-ontap-nas
+  namespace: trident
+spec:
+  version: 1
+  backendName: ontap-san-backend
+  storageDriverName: ontap-nas
+  managementLIF: 10.18.11.217
+  dataLIF: 10.18.11.216
+  svm: nos-7ose001
+  aggregate: node05_aggr1
+  storagePrefix: oselab
+  credentials:
+    name: backend-tbc-ontap-san-secret
