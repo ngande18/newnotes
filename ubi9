@@ -1,0 +1,33 @@
+[root@060d436cb766 /]# history
+    1  dnf install wget
+    2  microdnf install dnf wget
+    3  dnf repolist all
+    4  export R_VERSION=4.3.3
+    5  curl -O https://cdn.rstudio.com/r/centos-8/pkgs/R-${R_VERSION}-1-1.x86_64.rpm
+    6  wget https://cdn.rstudio.com/r/centos-8/pkgs/R-${R_VERSION}-1-1.x86_64.rpm --no-check-certificate
+    7  dnf localinstall R-4.3.3-1-1.x86_64.rpm
+    8  /opt/R/${R_VERSION}/bin/R --version
+    9  history
+[root@060d436cb766 /]# cat /etc/os-release
+NAME="Red Hat Enterprise Linux"
+VERSION="8.9 (Ootpa)"
+ID="rhel"
+ID_LIKE="fedora"
+VERSION_ID="8.9"
+PLATFORM_ID="platform:el8"
+PRETTY_NAME="Red Hat Enterprise Linux 8.9 (Ootpa)"
+ANSI_COLOR="0;31"
+CPE_NAME="cpe:/o:redhat:enterprise_linux:8::baseos"
+HOME_URL="https://www.redhat.com/"
+DOCUMENTATION_URL="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8"
+BUG_REPORT_URL="https://bugzilla.redhat.com/"
+
+REDHAT_BUGZILLA_PRODUCT="Red Hat Enterprise Linux 8"
+REDHAT_BUGZILLA_PRODUCT_VERSION=8.9
+REDHAT_SUPPORT_PRODUCT="Red Hat Enterprise Linux"
+REDHAT_SUPPORT_PRODUCT_VERSION="8.9"
+
+
+
+--------
+https://www.findbugzero.com/operational-defect-database/vendors/rh/defects/RHEL-5411
