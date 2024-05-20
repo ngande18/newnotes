@@ -1,0 +1,107 @@
+oc new-project test-pvc
+
+pvc-rwo.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-rwo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+
+oc apply -f pvc-rwo.yaml
+
+pvc-rwx.yaml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-rwx
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+
+oc apply -f pvc-rwx.yaml
+
+pod-rwo.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-rwo
+spec:
+  containers:
+  - name: app
+    image: busybox
+    command: [ "sleep", "3600" ]
+    volumeMounts:
+    - mountPath: "/mnt/storage"
+      name: storage
+  volumes:
+  - name: storage
+    persistentVolumeClaim:
+      claimName: pvc-rwo
+
+ oc apply -f pod-rwo.yaml
+
+ pod-rwx-1.yaml
+ apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-rwx-1
+spec:
+  containers:
+  - name: app
+    image: busybox
+    command: [ "sleep", "3600" ]
+    volumeMounts:
+    - mountPath: "/mnt/storage"
+      name: storage
+  volumes:
+  - name: storage
+    persistentVolumeClaim:
+      claimName: pvc-rwx
+oc apply -f pod-rwx-1.yaml
+
+pod-rwx-2.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-rwx-2
+spec:
+  containers:
+  - name: app
+    image: busybox
+    command: [ "sleep", "3600" ]
+    volumeMounts:
+    - mountPath: "/mnt/storage"
+      name: storage
+  volumes:
+  - name: storage
+    persistentVolumeClaim:
+      claimName: pvc-rwx
+
+
+      oc apply -f pod-rwx-2.yaml
+
+
+      oc exec pod-rwo -- ls /mnt/storage
+
+      oc exec pod-rwx-1 -- ls /mnt/storage
+oc exec pod-rwx-2 -- ls /mnt/storage
+
+oc exec pod-rwx-1 -- sh -c "echo 'Hello from pod-rwx-1' > /mnt/storage/hello.txt"
+oc exec pod-rwx-2 -- cat /mnt/storage/hello.txt
+
+
+
+
+
