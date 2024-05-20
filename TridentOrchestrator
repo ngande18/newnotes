@@ -28,3 +28,16 @@ spec:
   silenceAutosupport: false
   tridentImage: docker.io/netapp/trident:24.02.0
   windows: false
+
+
+
+patchesStrategicMerge:
+  - image-patch.yaml
+
+
+apiVersion: trident.netapp.io/v1
+kind: TridentOrchestrator
+metadata:
+  name: trident
+spec:
+  tridentImage: docker.io/netapp/trident:24.03.0
