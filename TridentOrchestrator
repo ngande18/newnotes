@@ -1,0 +1,30 @@
+apiVersion: trident.netapp.io/v1
+kind: TridentOrchestrator
+metadata:
+  name: trident
+spec:
+  IPv6: false
+  acpImage: null
+  autosupportImage: docker.io/netapp/trident-autosupport:23.10
+  autosupportInsecure: false
+  autosupportProxy: null
+  cloudIdentity: null
+  cloudProvider: null
+  debug: true
+  disableAuditLog: true
+  enableACP: false
+  enableForceDetach: false
+  httpRequestTimeout: 90s
+  imagePullPolicy: IfNotPresent
+  iscsiSelfHealingInterval: 5m0s
+  iscsiSelfHealingWaitTime: 7m0s
+  k8sTimeout: 0
+  kubeletDir: null
+  logFormat: text
+  logLayers: null
+  logWorkflows: null
+  namespace: trident
+  probePort: 17546
+  silenceAutosupport: false
+  tridentImage: docker.io/netapp/trident:24.02.0
+  windows: false
