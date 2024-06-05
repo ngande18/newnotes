@@ -1,0 +1,11 @@
+    - name: Find installed collections
+      find:
+        paths: "{{ ansible_collections_path }}"
+        patterns: "*"
+        file_type: directory
+      register: installed_collections
+
+    - name: Display installed collections
+      debug:
+        msg: "{{ item.path }}"
+      loop: "{{ installed_collections.files }}"
