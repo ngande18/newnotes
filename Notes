@@ -1,3 +1,5 @@
+if [ "$cluster" == "sbx" ]; then
+
 ACM's Thanos S3 bucket creation automation is now implemented and tested, though not entirely. The changes are split across three pull requests:
 
 1. **aws-roles-as-service**:
