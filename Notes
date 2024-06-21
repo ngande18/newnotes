@@ -1,3 +1,10 @@
+    group_view_access:
+        - name: OPENSHIFT_PHARMACYML
+          domain: accounts
+    group_edit_access:
+        - name: OPENSHIFT_PHARMACYML
+          domain: accounts
+
 if [ "$cluster" == "sbx" ]; then
 
 ACM's Thanos S3 bucket creation automation is now implemented and tested, though not entirely. The changes are split across three pull requests:
