@@ -1,0 +1,39 @@
+apiVersion: operator.openshift.io/v1
+kind: Network
+metadata:
+    name: cluster
+spec:
+    clusterNetwork:
+    - cidr: {{ .Values.network.cidr }}
+      hostPrefix: {{ .Values.network.hostPrefix }}
+    serviceNetwork:
+    - {{ .Values.network.serviceNetwork }}
+    defaultNetwork:
+        type: {{ .Values.network.networkType | default "OpenShiftSDN" }}
+{{- if eq .Values.network.networkType "OpenShiftSDN" }}
+        openshiftSDNConfig:
+            mode: NetworkPolicy
+            mtu: {{ .Values.network.mtu }}
+            vxlanPort: 4789
+    kubeProxyConfig:
+        iptablesSyncPeriod: {{ .Values.network.iptablesSyncPeriod }}
+        proxyArguments:
+            iptables-min-sync-period: 
+            - {{ .Values.network.iptablesMinSyncPeriod }}
+{{- else if eq .Values.network.networkType "OVNKubernetes" }}
+        ovnKubernetesConfig: 
+            mtu: {{ .Values.network.mtu }}
+            genevePort: 6081 
+{{ end }}
+
+
+network:
+  cidr: 100.127.64.0/18
+  hostPrefix: 25
+  serviceNetwork: 172.29.0.0/17
+  iptablesSyncPeriod: 30s
+  iptablesMinSyncPeriod: 30s
+  networkType: OpenShiftSDN
+  mtu: 8946
+
+argocd-applications/cluster-config/templates/network/network-operator.yaml
