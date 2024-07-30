@@ -1,0 +1,237 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.role.rolebinding }}
+rules:
+- apiGroups: [""] 
+  resources: 
+     - "nodes" 
+  verbs: ["get", "list"]
+- apiGroups: [""] 
+  resources: 
+     - "pods" 
+     - "pods/log" 
+  verbs: ["get", "list", "create", "delete", "watch"]
+
+
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Values.role.clusterrole }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "cirrus-ocp4-backup.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Values.role.clusterrole }}
+
+{{- define "cirrus-ocp4-backup.app" -}}
+{{- default .Chart.Name .Values.app | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+    name: {{ .Values.cjname }}
+    namespace: {{ .Release.Namespace }}
+data:
+  backup_ocp_etcd.sh: |
+
+
+
+kind: CronJob
+apiVersion: batch/v1
+metadata:
+  name:  {{ .Values.cjname }}
+  namespace:  {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.app }}
+spec:
+  schedule: "10 23 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    metadata:
+      labels:
+        app: {{ .Values.app }}
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: {{ .Values.app }}
+        spec:
+          containers: 
+            - name: backup
+              env: 
+                - name: OCP_CLUSTER
+                  value: {{ .Values.clusterName | default "default" }}
+                - name: IBM_APITOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      key: apiToken
+                      name:  {{ .Release.Namespace }}
+              image: {{ .Values.img }}
+              command:
+                - "/bin/bash"
+                - "-c"
+                - "/opt/app-root/backup_script/backup_ocp_etcd.sh"
+              volumeMounts:
+                - mountPath: /opt/app-root/backup_script/
+                  name: {{ .Values.cjname }} 
+                - mountPath: /host/backup
+                  name: hostpath-privileged  
+              securityContext:
+                  privileged: true  
+          nodeSelector:
+            node-role.kubernetes.io/master: ""
+          volumes:
+            - name: {{ .Values.cjname }}  
+              configMap:
+                defaultMode: 0755
+                name: {{ .Values.cjname }}  
+            - name: hostpath-privileged
+              hostPath: 
+                path: /home/core/backup/   
+          restartPolicy: "Never"
+          terminationGracePeriodSeconds: 30
+          activeDeadlineSeconds: 600
+          dnsPolicy: "ClusterFirst"
+          serviceAccountName: {{ include "cirrus-ocp4-backup.serviceAccountName" . }}
+          serviceAccount: {{ include "cirrus-ocp4-backup.serviceAccountName" . }}
+          tolerations:
+          - effect: NoSchedule
+            key: node-role.kubernetes.io/master
+            operator: Exists
+
+allowHostDirVolumePlugin: true
+allowHostIPC: true
+allowHostNetwork: true
+allowHostPID: true
+allowHostPorts: true
+allowPrivilegeEscalation: true
+allowPrivilegedContainer: true
+allowedCapabilities:
+- '*'
+allowedUnsafeSysctls:
+- '*'
+apiVersion: security.openshift.io/v1
+defaultAddCapabilities: null
+fsGroup:
+  type: RunAsAny
+groups: []
+kind: SecurityContextConstraints
+metadata:
+  annotations:
+    include.release.openshift.io/self-managed-high-availability: "true"
+    kubernetes.io/description: 'scc for openshift-backup'
+    release.openshift.io/create-only: "true"
+    argocd.argoproj.io/sync-options: Validate=false
+  name: {{ .Values.app }}-scc
+priority: null
+readOnlyRootFilesystem: false
+requiredDropCapabilities: null
+runAsUser:
+  type: RunAsAny
+seLinuxContext:
+  type: RunAsAny
+seccompProfiles:
+- '*'
+supplementalGroups:
+  type: RunAsAny
+users:
+- system:serviceaccount:{{ .Release.Namespace }}:{{ include "cirrus-ocp4-backup.serviceAccountName" . }}
+volumes:
+- '*'
+
+
+
+# Default values for cirrus-ocp4-backup.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+
+app: openshift-backup
+role:
+  clusterrole: ocp-backup-etcd
+  rolebinding: ocp-backup-etcd
+cjname: openshift-backup
+img: "registry.redhat.io/openshift4/ose-cli:v4.10"
+apiToken: <path:ibmcloud/arbitrary/secrets/groups/faa2272e-76ad-603b-4683-fdbefb21c496#ocp_backup_apiToken>
+clusterName: ""
+
+
+# cirrus-ocp4-backup:
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "openshift-backup"
+
+
+replicaCount: 1
+
+# image:
+#   repository: "registry.redhat.io/openshift4/ose-cli"
+#   tag: "v4.10"
+#   pullPolicy: IfNotPresent
+#   # Overrides the image tag whose default is the chart appVersion.
+  
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {
+  privileged: true
+
+}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: 
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+    operator: Exists
+
+affinity: {}
