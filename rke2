@@ -1,0 +1,62 @@
+# Configuring Rancher for Insecure Connection to Private Registry
+
+If you need to allow RKE2 to connect to a private registry over an insecure (HTTP) connection, follow these steps to adjust your Rancher configuration.
+
+## Step-by-Step Guide
+
+### 1. Access the Rancher UI
+
+- Log in to your Rancher management console.
+
+  ![Rancher Login](https://example.com/path-to-your-image/rancher-login.png)
+
+### 2. Edit the RKE2 Configuration
+
+1. **Navigate to the Cluster Configuration:**
+   - Go to **`Cluster Management`** from the main menu.
+   - Select the cluster where RKE2 is deployed.
+
+     ![Cluster Management](https://example.com/path-to-your-image/cluster-management.png)
+
+2. **Open Cluster Edit Mode:**
+   - Click on the **`Edit`** button for the selected cluster.
+
+     ![Edit Cluster](https://example.com/path-to-your-image/edit-cluster.png)
+
+3. **Modify the RKE2 Config:**
+   - Scroll down to the **`RKE2`** configuration section.
+   - Locate the **`Custom Config`** field or **`RKE2 Configuration File`** (depending on your Rancher version).
+
+     ![RKE2 Configuration](https://example.com/path-to-your-image/rke2-configuration.png)
+
+4. **Add Insecure Registry Configuration:**
+   - Add or update the configuration to include the private registry as insecure. Use the following format:
+
+     ```yaml
+     apiVersion: rke2.io/v1
+     kind: Cluster
+     spec:
+       # Existing configuration
+       rke2Config:
+         # Other RKE2 config settings
+         # Add the following under rke2Config
+         - --registry-mirrors=https://my-private-registry:5000
+         - --insecure-registry=my-private-registry:5000
+     ```
+
+   - Replace `my-private-registry:5000` with the actual address and port of your private registry.
+
+     ![Add Configuration](https://example.com/path-to-your-image/add-configuration.png)
+
+### 3. Apply the Configuration
+
+- Save the changes to update the cluster configuration.
+
+  ![Save Configuration](https://example.com/path-to-your-image/save-configuration.png)
+
+### 4. Restart RKE2 Nodes
+
+- For the changes to take effect, you may need to restart your RKE2 nodes. This can be done by either rebooting the nodes or using RKE2 commands to restart the service.
+
+  ```bash
+  systemctl restart rke2-server
