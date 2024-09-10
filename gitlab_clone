@@ -43,3 +43,63 @@ clone_projects() {
 
 # Start cloning from page 1
 clone_projects 1
+----------------
+
+
+
+#!/bin/bash
+
+# GitLab settings
+GITLAB_URL="https://gitlab.example.com"  # Replace with your GitLab instance URL
+TOKEN="your_personal_access_token"         # Replace with your GitLab personal access token
+OUTPUT_DIR="gitlab_projects"               # Base directory for projects
+
+# Create output directory if it doesn't exist
+mkdir -p "$OUTPUT_DIR"
+
+# Function to recursively list projects and clone them
+clone_projects() {
+  local page=$1
+  local per_page=100
+  local url="${GITLAB_URL}/api/v4/projects?membership=true&per_page=${per_page}&page=${page}"
+
+  # Fetch the list of projects
+  response=$(curl --silent --header "PRIVATE-TOKEN: ${TOKEN}" "${url}")
+
+  # Check if response is empty
+  if [ -z "$response" ] || [ "$response" == "[]" ]; then
+    echo "No more projects to fetch."
+    return
+  fi
+
+  # Print debug information
+  echo "Processing page ${page}..."
+  
+  # Process each project
+  echo "$response" | jq -c '.[]' | while IFS= read -r project; do
+    project_id=$(echo "$project" | jq -r '.id')
+    project_name=$(echo "$project" | jq -r '.name')
+    project_path=$(echo "$project" | jq -r '.path_with_namespace')
+    project_url=$(echo "$project" | jq -r '.http_url_to_repo')
+
+    # Create project directory based on path
+    project_dir="${OUTPUT_DIR}/${project_path}"
+    mkdir -p "$project_dir"
+
+    # Clone the repository
+    echo "Cloning: $project_path into $project_dir"
+    git clone "$project_url" "$project_dir"
+
+    if [ $? -eq 0 ]; then
+      echo "Successfully cloned $project_path."
+    else
+      echo "Failed to clone $project_path."
+    fi
+  done
+
+  # Fetch the next page of projects
+  clone_projects $((page + 1))
+}
+
+# Start cloning from page 1
+clone_projects 1
