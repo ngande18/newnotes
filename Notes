@@ -1,4 +1,6 @@
-    group_view_access:
+PROJECTS=($(oc get projects -o custom-columns=Name:.metadata.name --no-headers 2> /dev/null | grep -Ev '^openshift$|^aqua-ops$|CLUSTER_NAME|^openshift-|^open-cluster|^kube-|^default$|dynatrace|^csk|^aqua$|^velero$|^external-secrets$|^stackrox$|^rhacm|^rhacs|^cluster-ops$|^ldap-sync$|^namespace-cleanup$'))
+
+group_view_access:
         - name: OPENSHIFT_PHARMACYML
           domain: accounts
     group_edit_access:
