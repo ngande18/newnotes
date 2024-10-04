@@ -48,6 +48,45 @@ oc get clusterlogforwarder -n openshift-logging
 curl -u <username>:<password> -X GET "https://elasticsearch.example.com:9200/_cat/indices?v"
 
 
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  outputs:
+  - name: elasticsearch-output
+    type: elasticsearch
+    url: "https://elasticsearch.example.com:9200"  # Replace with your Elasticsearch URL
+    secret:
+      name: es-auth  # Reference the secret with Elasticsearch credentials
+    tls:
+      ca:
+        name: custom-ca-bundle  # Reference to the ConfigMap containing the injected CA bundle
+        key: ca-bundle.crt  # Key in the ConfigMap
+  pipelines:
+  - name: forward-app-logs
+    inputRefs:
+    - application  # Forwarding application logs
+    outputRefs:
+    - elasticsearch-output
+    labels:
+      cluster_name: "<your-cluster-name>"  # Replace with your actual cluster name
+  - name: forward-infra-logs
+    inputRefs:
+    - infrastructure  # Forwarding infrastructure logs
+    outputRefs:
+    - elasticsearch-output
+    labels:
+      cluster_name: "<your-cluster-name>"  # Replace with your actual cluster name
 
+
+curl -u <username>:<password> -X GET "https://elasticsearch.example.com:9200/_search" -H 'Content-Type: application/json' -d '{
+  "query": {
+    "match": {
+      "cluster_name": "<your-cluster-name>"
+    }
+  }
+}'
 
 
