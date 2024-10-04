@@ -1,0 +1,53 @@
+oc create configmap custom-ca-bundle -n <namespace>
+
+oc annotate configmap custom-ca-bundle \
+  service.beta.openshift.io/inject-cabundle=true \
+  -n <namespace>
+
+oc get configmap custom-ca-bundle -o yaml -n <namespace>
+
+oc create secret generic es-auth \
+  --from-literal=username=<your-username> \
+  --from-literal=password=<your-password> \
+  -n openshift-logging
+
+
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  outputs:
+  - name: elasticsearch-output
+    type: elasticsearch
+    url: "https://elasticsearch.example.com:9200"  # Replace with your Elasticsearch URL
+    secret:
+      name: es-auth  # Reference the secret with Elasticsearch credentials
+    tls:
+      ca:
+        name: custom-ca-bundle  # Reference to the ConfigMap containing the injected CA bundle
+        key: ca-bundle.crt  # Key in the ConfigMap
+  pipelines:
+  - name: forward-app-logs
+    inputRefs:
+    - application  # Forwarding application logs
+    outputRefs:
+    - elasticsearch-output
+  - name: forward-infra-logs
+    inputRefs:
+    - infrastructure  # Forwarding infrastructure logs
+    outputRefs:
+    - elasticsearch-output
+
+oc apply -f clusterlogforwarder.yaml
+
+oc get clusterlogforwarder -n openshift-logging
+
+
+curl -u <username>:<password> -X GET "https://elasticsearch.example.com:9200/_cat/indices?v"
+
+
+
+
+
