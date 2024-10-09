@@ -1,3 +1,88 @@
+
+10/09
+oc create secret generic logstash-credentials \
+--from-literal=username=<username> \
+--from-literal=password=<password> \
+-n openshift-logging
+
+oc create secret generic logstash-credentials \
+--from-literal=username=user \
+--from-literal=password=password123 \
+-n openshift-logging
+
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  outputs:
+  - name: logstash-http
+    type: http
+    http:
+      uri: "http://<logstash-server>:<logstash-port>/logs"
+      method: POST
+      headers:
+        Content-Type: application/json
+        Authorization: Basic {{ .Values.logstashCredentials }}  # Placeholder for Secret reference
+  pipelines:
+  - name: infra-to-logstash-http
+    inputRefs:
+    - infrastructure   # Forward infrastructure logs
+    outputRefs:
+    - logstash-http
+  - name: app-to-logstash-http
+    inputRefs:
+    - application      # Forward application logs
+    outputRefs:
+    - logstash-http
+
+
+
+apiVersion: logging.openshift.io/v1
+kind: ClusterLogForwarder
+metadata:
+  name: instance
+  namespace: openshift-logging
+spec:
+  outputs:
+  - name: logstash-http
+    type: http
+    http:
+      uri: "http://<logstash-server>:<logstash-port>/logs"  # Use HTTP or HTTPS as needed
+      method: POST
+      headers:
+        Content-Type: application/json
+      injectCABundle: true  # Enables CA bundle injection if using HTTPS
+  pipelines:
+  - name: infra-to-logstash-http
+    inputRefs:
+    - infrastructure   # Forward infrastructure logs
+    outputRefs:
+    - logstash-http
+  - name: app-to-logstash-http
+    inputRefs:
+    - application      # Forward application logs
+    outputRefs:
+    - logstash-http
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------
 oc create configmap custom-ca-bundle -n <namespace>
 
 oc annotate configmap custom-ca-bundle \
