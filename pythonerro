@@ -1,0 +1,103 @@
+Emailing
+    filenames: ['aqua_running_report_fil.xlsx']
+    subject: OpenShift report for fil
+    body: <html>
+        <i>This automated report is for understanding your app code's security standing.<br>
+			This report will be generated every first and third Monday of the month.
+            Please contact dl-kubernetes@prod.mtb.com for any suggestions or concerns.</i><br><br>
+        Please see attached for your app code's OpenShift status as reported by Aqua on 2024-10-09 for app code fil.<br><br>
+        <b>Report fields</b>:<br>
+	<table cellspacing=10>
+		<tr>
+			<td >Namespace</td> <td>--</td> <td>Project name of the container.</td>
+		</tr>
+		<tr>
+			<td>Region</td> <td>--</td> <td> The environment that the container is being hosted on.</td>
+		</tr>
+		<tr>
+			<td>Container</td> <td>--</td> <td> The specific image and tag used for the container being hosted.</td>
+		</tr>
+		<tr>
+			<td>Base Image</td> <td>--</td> <td> The image that the container builds on top of.</td>
+		</tr>
+		<tr>
+			<td>Vulnerability</td> <td>--</td> <td>The classification of the vulnerability.</td>
+		</tr>
+		<tr>
+			<td>Date Found</td> <td>--</td> <td>When Aqua found the vulnerability.</td>
+		</tr>
+		<tr>
+			<td>Publish Date</td> <td>--</td> <td>When the vulnerability was published.</td>
+		</tr>
+		<tr>
+			<td>Modification Date</td> <td>--</td> <td>If the vulnerability changed, when it was updated after it was published.</td>
+		</tr>
+		<tr>
+			<td>Compliant</td> <td>--</td> <td>If Aqua determines the image is non-compliant then it will be blocked during deployment.</td>
+		</tr>
+	</table>
+</html>
+    fromAddr: dl-kubernetes@prod.mtb.com
+    toAddr: ['dlenda@mtb.com']
+    cc: ['ckirton@mtb.com', ' kward1@mtb.com', ' dpowe1@mtb.com', ' critchie2@mtb.com']
+Traceback (most recent call last):
+  File "/builds/Platforms/openshift/aqs-vuln-report/app.py", line 289, in emailxlsx
+    mail.sendmail(fromAddr, toAddr, message.as_string())
+  File "/usr/lib64/python3.6/email/message.py", line 158, in as_string
+    g.flatten(self, unixfrom=unixfrom)
+  File "/usr/lib64/python3.6/email/generator.py", line 118, in flatten
+    self._write(msg)
+  File "/usr/lib64/python3.6/email/generator.py", line 197, in _write
+    self._write_headers(msg)
+  File "/usr/lib64/python3.6/email/generator.py", line 224, in _write_headers
+    folded = self.policy.fold(h, v)
+  File "/usr/lib64/python3.6/email/_policybase.py", line 334, in fold
+    return self._fold(name, value, sanitize=True)
+  File "/usr/lib64/python3.6/email/_policybase.py", line 377, in _fold
+    parts.append(h.encode(linesep=self.linesep, maxlinelen=maxlinelen))
+AttributeError: 'list' object has no attribute 'encode'
+During handling of the above exception, another exception occurred:
+Traceback (most recent call last):
+  File "/builds/Platforms/openshift/aqs-vuln-report/app.py", line 397, in <module>
+    main()
+  File "/builds/Platforms/openshift/aqs-vuln-report/app.py", line 391, in main
+    emailxlsx(email_files, subject, body, fromAddr, toAddr, CC)
+  File "/builds/Platforms/openshift/aqs-vuln-report/app.py", line 290, in emailxlsx
+    except SMTPException as e:
+NameError: name 'SMTPException' is not defined
+Cleaning up project directory and file based variables
+00:01
+ERROR: Job failed: command terminated with exit code 1
+
+def emailxlsx(filenames, subject, body, fromAddr, toAddr, CC):
+    print("Emailing")
+    print("    filenames: " + str(filenames))
+    print("    subject: " + str(subject))
+    print("    body: " + str(body))
+    print("    fromAddr: " + str(fromAddr))
+    print("    toAddr: " + str(toAddr))
+    print("    cc: " + str(CC))
+    # Create a multipart message and set headers
+    message = MIMEMultipart()
+    message["From"] = fromAddr
+    message["To"] = ', '.join(toAddr)
+    message["Subject"] = subject
+    message["CC"] = CC
+
+    # Add body to email
+    message.attach(MIMEText(body, "html"))
+    for filename in filenames:
+        attachment = MIMEApplication(open(filename, 'rb').read())
+        attachment.add_header('Content-Disposition', 'attachment', filename=filename)
+        message.attach(attachment)
+
+    try:
+        mail = smtplib.SMTP('vmwsmtp.mandtbank.com', 25)
+        mail.sendmail(fromAddr, toAddr, message.as_string())
+    except SMTPException as e:
+        print(f'There was a problem sending the mail: {e}')
+        sys.exit(1)
+
+    mail.quit()
+
+
