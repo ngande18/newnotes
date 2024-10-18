@@ -1,4 +1,32 @@
 
+
+    if os.environ.get("SEND_TO_APPS"):
+        proj_dir = os.environ.get("CI_PROJECT_DIR")
+        app_codes = get_app_codes(dest_filename)
+        for app_code in app_codes:
+            print("Working on App Code Report for: ", app_code)
+            try:
+                toAddr = get_app_code_to_mail(app_code).split(",")
+            except ValueError as ve:
+                print(ve)  # Log the error message
+                continue  # Skip to the next app code if no email is found
+            
+            # Proceed with segmenting the report only if email is found
+            segmented_report = segment_app_code_from_report(dest_filename, app_code)
+            subject = f"OpenShift report for {app_code}"
+            body = ""
+            with open(proj_dir + "/TO_email_body.html", "r") as f:
+                body += f"{f.read()}".format(date=date.today(), app_code=app_code)
+            fromAddr = "dl-kubernetes@prod.mtb.com"
+            CC = get_app_code_ts_mails(app_code).split(",")
+            email_files = [segmented_report]
+            emailxlsx(email_files, subject, body, fromAddr, toAddr, CC)
+
+    # Disabled so that files can be uploaded as artifacts
+    # cleanxlsx()
+
+
+
 Working on App Code Report for:  aqu
 No email found for app code: aqu
 Traceback (most recent call last):
