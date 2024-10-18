@@ -1,0 +1,96 @@
+def main():
+    #regions = ['dev', 'cert', 'extcert', 'prod', 'ext', 'proddr', 'extdr']
+    #regions = ['cert', 'extcert', 'prod', 'ext', 'proddr', 'extdr']
+
+    send_to_apps = os.environ.get("SEND_TO_APPS")
+    
+    if send_to_apps is None:
+        print("SEND_TO_APPS is not set.")
+    else:
+        print(f"SEND_TO_APPS is set to: {send_to_apps}")
+
+    files = []
+    dest_filename = f'aqua_report.xlsx'
+    a = Aqua()
+    containers = a.getRunningContainers()
+    images = a.getRegisteredImages()
+    containers = a.addNamespace(containers, images)
+    containers = a.removeDuplicateImages(containers)
+    containers = a.addBaseImage(containers)
+    containers = a.addVulnsToImage(containers)
+    print("    Aqua generating report")
+    report = a.generateContainerStats(containers)
+    a.generateContainerReport(report, dest_filename)
+    files.append(dest_filename)
+
+
+
+       # Get Catalog scans from Prod
+    images = []
+#    dest_image_filename = 'aqua_catalog_report.xlsx'
+#    a = Aqua('prod')
+#    images = a.getRegisteredImages()
+#    images = a.addVulnsToImage(images)
+#    images = a.getCatalogImages(images)
+#    ireport = a.generateImageStats(images)
+#    a.generateImageReport(ireport, dest_image_filename)
+
+    # Send running report to vulnerability management
+    if os.environ.get("SEND_TO_APPS") is None:
+        subject = f"AQS SAAS Running Vulnerability Report PROD test"
+        body = f"Please see attached for vulnerabilities reported by Aqua on {date.today()}"
+        toAddr = ["ngande@mtb.com", "bpuri@mtb.com"]
+        fromAddr = "dl-kubernetes@prod.mtb.com"
+        CC = ""
+        email_files = [dest_filename]
+        emailxlsx(email_files, subject, body, fromAddr, toAddr, CC)
+
+    # Send running report segmented to app code TOs
+    if os.environ.get("SEND_TO_APPS"):
+        proj_dir = os.environ.get("CI_PROJECT_DIR")
+        app_codes = get_app_codes(dest_filename)
+
+        # Dictionary to hold app codes and their corresponding emails
+        email_mapping = {}
+        no_email_codes = []  # List to hold app codes with no emails
+
+
+        for app_code in app_codes:
+            print("Working on App Code Report for: ", app_code)
+
+            toAddr = get_app_code_to_mail(app_code).split(",")
+
+            # Store email addresses in the mapping
+            email_mapping[app_code] = toAddr
+
+            # Skip processing if no email addresses are found
+            if not toAddr[0]:  # Check if the first element is an empty string
+                no_email_codes.append(app_code)  # Add to no_email_codes list
+                continue
+
+            segmented_report = segment_app_code_from_report(dest_filename, app_code)
+            subject = f"OpenShift report for {app_code}"
+            body = f""
+            with open(proj_dir + "/TO_email_body.html", "r") as f:
+                body += f"{f.read()}".format(date=date.today(), app_code=app_code)
+            fromAddr = "dl-kubernetes@prod.mtb.com"
+            CC = get_app_code_ts_mails(app_code).split(",")
+            email_files = [segmented_report]
+            emailxlsx(email_files, subject, body, fromAddr, toAddr, CC)
+
+            # Print the final list of app codes with their email addresses
+            print("\nApp Codes and their Email Addresses:")
+            for app_code, emails in email_mapping.items():
+                print(f"{app_code}: {', '.join(emails)}")
+
+            # Print app codes with no emails found
+            if no_email_codes:
+                print("\nApp Codes with No Email Addresses Found:")
+                for code in no_email_codes:
+                    print(code)
+
+
+    # Disabled so that files can be uploaded as artifacts
+    # cleanxlsx()
+
+    sys.exit()
