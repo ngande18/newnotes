@@ -1,4 +1,42 @@
 
+
+def generateContainerStats(self, containers):
+    report = {}
+    print("Aqua: generateContainerStats")
+    for c in containers:
+        if c.get('detailed_vulnerabilities') is None:
+            # Skip this container if no vulnerabilities are found
+            continue
+        if c['namespace_name'] not in report:
+            report[c['namespace_name']] = {
+                'Vulnerabilities': [],
+                'Base Image': c.get('base_image', 'Unknown Base Image')  # Default value if not found
+            }
+
+        for v in c['detailed_vulnerabilities']:
+            newvuln = {}
+            container_link = f'https://aqua.apps.ose{self.region}.mtb.com/#/workloads/{c["ihost_id"]}/{c["iid"]}/{c["iname"]}/risk'
+            image_name = v.get('image_name', 'Unknown Image')  # Default value if not found
+            newvuln['Container'] = f'=HYPERLINK("{container_link}", "{image_name}")'
+            newvuln['Vulnerability'] = v.get('name', 'No Name')  # Default value if not found
+            newvuln['Severity'] = v.get('aqua_severity', 'Unknown Severity')  # Default value if not found
+            newvuln['Date Found'] = v.get('first_found_date', 'N/A')  # Default value if not found
+            newvuln['Publish Date'] = v.get('publish_date', 'N/A')  # Default value if not found
+            newvuln['Modification Date'] = v.get('modification_date', 'N/A')  # Default value if not found
+            newvuln['Fix Version'] = v.get('fix_version', 'N/A')  # Default value if not found
+            newvuln['Description'] = v.get('description', 'No Description')  # Default value if not found
+            newvuln['Compliant'] = "Yes" if c.get('compliant') else "No"
+
+            report[c['namespace_name']]['Vulnerabilities'].append(newvuln)
+    
+    return report
+
+
+
+
+
+
+
 Aqua: generateContainerStats
 Traceback (most recent call last):
   File "/builds/Platforms/openshift/aqs-vuln-report/app.py", line 448, in <module>
