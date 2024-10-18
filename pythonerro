@@ -1,5 +1,13 @@
 
-
+Aqua: generateContainerStats
+Traceback (most recent call last):
+  File "/builds/Platforms/openshift/aqs-vuln-report/app.py", line 448, in <module>
+    main()
+  File "/builds/Platforms/openshift/aqs-vuln-report/app.py", line 374, in main
+    report = a.generateContainerStats(containers)
+  File "/builds/Platforms/openshift/aqs-vuln-report/app.py", line 231, in generateContainerStats
+    newvuln['Description'] = v['description']
+KeyError: 'description'
 
 def main():
     if os.environ.get("SEND_TO_APPS"):
