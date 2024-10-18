@@ -1,4 +1,62 @@
 
+import requests
+
+def get_app_code_to_mail(app_code):
+    try:
+        print(f"Fetching email for app code: {app_code}")
+        response = requests.get(f"https://appcodelookup.apps.XXXX.XXXXX.com/ac/{app_code}", verify=False)
+        response.raise_for_status()  # Raise an error for bad responses
+        info = response.json()
+
+        print(f"Result info: {info}")  # Log the response
+
+        if not info.get("result"):
+            print(f"No email found for app code: {app_code}")
+            return ""  # Return an empty string instead of raising an error
+
+        return info["result"][0]["toemail"]
+    
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching email for app code {app_code}: {e}")
+        return ""  # Return an empty string on request failure
+    except Exception as e:
+        print(f"Unexpected error for app code {app_code}: {e}")
+        return ""  # Return an empty string for unexpected errors
+
+
+def main():
+    if os.environ.get("SEND_TO_APPS"):
+        proj_dir = os.environ.get("CI_PROJECT_DIR")
+        app_codes = get_app_codes(dest_filename)
+        for app_code in app_codes:
+            print("Working on App Code Report for: ", app_code)
+            toAddr = get_app_code_to_mail(app_code).split(",")
+
+            # Skip processing if no email addresses are found
+            if not toAddr[0]:  # Check if the first element is an empty string
+                continue
+
+            segmented_report = segment_app_code_from_report(dest_filename, app_code)
+            subject = f"OpenShift report for {app_code}"
+            body = ""
+            with open(proj_dir + "/TO_email_body.html", "r") as f:
+                body += f"{f.read()}".format(date=date.today(), app_code=app_code)
+            fromAddr = "dl-kubernetes@prod.mtb.com"
+            CC = get_app_code_ts_mails(app_code).split(",")
+            email_files = [segmented_report]
+            emailxlsx(email_files, subject, body, fromAddr, toAddr, CC)
+
+    # Disabled so that files can be uploaded as artifacts
+    # cleanxlsx()
+
+    sys.exit()
+
+main()
+
+
+
+
+
 
     if os.environ.get("SEND_TO_APPS"):
         proj_dir = os.environ.get("CI_PROJECT_DIR")
