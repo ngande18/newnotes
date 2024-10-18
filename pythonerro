@@ -1,4 +1,53 @@
 
+
+
+def main():
+    if os.environ.get("SEND_TO_APPS"):
+        proj_dir = os.environ.get("CI_PROJECT_DIR")
+        app_codes = get_app_codes(dest_filename)
+        
+        # Dictionary to hold app codes and their corresponding emails
+        email_mapping = {}
+        no_email_codes = []  # List to hold app codes with no emails
+
+        for app_code in app_codes:
+            print("Working on App Code Report for: ", app_code)
+            toAddr = get_app_code_to_mail(app_code).split(",")
+
+            # Store email addresses in the mapping
+            email_mapping[app_code] = toAddr
+            
+            # Check if no email addresses were found
+            if not toAddr[0]:  # Check if the first element is an empty string
+                no_email_codes.append(app_code)  # Add to no_email_codes list
+                continue
+
+            segmented_report = segment_app_code_from_report(dest_filename, app_code)
+            subject = f"OpenShift report for {app_code}"
+            body = ""
+            with open(proj_dir + "/TO_email_body.html", "r") as f:
+                body += f"{f.read()}".format(date=date.today(), app_code=app_code)
+            fromAddr = "dl-kubernetes@prod.mtb.com"
+            CC = get_app_code_ts_mails(app_code).split(",")
+            email_files = [segmented_report]
+            emailxlsx(email_files, subject, body, fromAddr, toAddr, CC)
+
+        # Print the final list of app codes with their email addresses
+        print("\nApp Codes and their Email Addresses:")
+        for app_code, emails in email_mapping.items():
+            print(f"{app_code}: {', '.join(emails)}")
+
+        # Print app codes with no emails found
+        if no_email_codes:
+            print("\nApp Codes with No Email Addresses Found:")
+            for code in no_email_codes:
+                print(code)
+
+    # Disabled so that files can be uploaded as artifacts
+    # cleanxlsx()
+
+
+
 import requests
 
 def get_app_code_to_mail(app_code):
