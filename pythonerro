@@ -1,4 +1,9 @@
-
+    send_to_apps = os.environ.get("SEND_TO_APPS")
+    
+    if send_to_apps is None:
+        print("SEND_TO_APPS is not set.")
+    else:
+        print(f"SEND_TO_APPS is set to: {send_to_apps}")
 
 def generateContainerStats(self, containers):
     report = {}
