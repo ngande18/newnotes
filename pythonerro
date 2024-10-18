@@ -1,4 +1,18 @@
 
+Working on App Code Report for:  aqu
+No email found for app code: aqu
+Traceback (most recent call last):
+  File "/builds/Platforms/openshift/aqs-vuln-report/app.py", line 418, in <module>
+    main()
+  File "/builds/Platforms/openshift/aqs-vuln-report/app.py", line 408, in main
+    toAddr = get_app_code_to_mail(app_code).split(",")
+  File "/builds/Platforms/openshift/aqs-vuln-report/app.py", line 320, in get_app_code_to_mail
+    raise ValueError(f"No email found for app code: {app_code}")
+ValueError: No email found for app code: aqu
+Cleaning up project directory and file based variables
+
+
+
 
 import requests
 
