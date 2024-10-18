@@ -1,3 +1,27 @@
+import requests
+
+def get_app_code_to_mail(app_code):
+    try:
+        response = requests.get(f"https://appcodelookup.apps.XXXX.XXXXX.com/ac/{app_code}", verify=False)
+        response.raise_for_status()  # Raise an error for bad responses
+        info = response.json()
+
+        if not info.get("result"):
+            raise ValueError(f"No email found for app code: {app_code}")
+
+        return info["result"][0]["toemail"]
+    
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching email for app code {app_code}: {e}")
+        raise
+    except ValueError as ve:
+        print(ve)
+        raise
+    except Exception as e:
+        print(f"Unexpected error for app code {app_code}: {e}")
+        raise
+
+
 
 #! /usr/bin/env /usr/bin/python3
 # Generates a report of vulnerabilities in Aqua
