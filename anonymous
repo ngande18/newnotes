@@ -1,3 +1,19 @@
+RUN --mount=type=secret,id=pip.conf,target=/kaniko/pip.conf \
+    echo -e "\n\tUpdating trusted certificate authorities" && \
+    # Run update-ca-trust to update the trusted CA list - MTB-izing
+    update-ca-trust && \
+    PIP_CONFIG_FILE=/kaniko/pip.conf python3 -m pip install ${pip_packages} \
+        --cert /etc/ssl/certs/ca-bundle.crt \
+        --index-url https://artifactory.mtb.com/artifactory/api/pypi/mtb-pypi-auth-test/simple \
+        --no-cache-dir \
+        --no-compile && \
+    echo -e "\n\tCreating 'default' user" && \
+    useradd -u 1001 -r -g 0 -d "${HOME}" -s /sbin/nologin -c 'Default Application User' default
+
+
+
+
+
 RUN --mount=type=secret,id=pip.conf,target=/kaniko/pip.conf \ 
     PIP_CONFIG_FILE=/kaniko/pip.conf \
     pip install --no-cache-dir requests
