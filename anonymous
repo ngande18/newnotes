@@ -1,0 +1,3 @@
+RUN --mount=type=secret,id=pip.conf,target=/kaniko/pip.conf \ 
+    PIP_CONFIG_FILE=/kaniko/pip.conf \
+    pip install --no-cache-dir requests
