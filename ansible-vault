@@ -1,0 +1,91 @@
+# View contents of config.json file
+cat ~/.docker/config.json
+
+# Encrypt the contents and save them in a variable file (e.g., vault_docker_secret.yml)
+ansible-vault encrypt_string --stdin-name 'dockerconfigjson' < ~/.docker/config.json > vault_docker_secret.yml
+
+
+dockerconfigjson: !vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      61356531646236306534343362306530383739393232393363383839343731313234343132663631
+      3436363265316432643261343838616633626665313230660a653232393836336535363534316638
+      ...
+
+
+---
+- name: Create Kubernetes Secret from Vault-encrypted Docker Pull Secret
+  hosts: localhost
+  tasks:
+    - name: Load Vault-encrypted Docker pull secret
+      ansible.builtin.include_vars:
+        file: vault_docker_secret.yml
+        name: secret_data
+
+    - name: Create Kubernetes Secret for Docker Registry
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: docker-pull-secret
+            namespace: default
+          type: kubernetes.io/dockerconfigjson
+          data:
+            .dockerconfigjson: "{{ secret_data.dockerconfigjson }}"
+
+ansible-playbook create_vault_docker_pull_secret.yml --ask-vault-pass
+
+oc create secret docker-registry my-image-pull-secret \
+    --docker-server=<your-registry-url> \
+    --docker-username=<your-username> \
+    --docker-password=<your-password> \
+    --docker-email=<your-email> \
+    -n <namespace>
+
+oc secrets link default my-image-pull-secret --for=pull -n <namespace>
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  namespace: <namespace>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      serviceAccountName: default  # Use the service account with the pull secret
+      containers:
+      - name: my-container
+        image: <your-private-registry>/<image>:<tag>
+        ports:
+        - containerPort: 80
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  namespace: <namespace>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      imagePullSecrets:
+      - name: my-image-pull-secret    # Reference the secret directly here
+      containers:
+      - name: my-container
+        image: <your-private-registry>/<image>:<tag>
+        ports:
+        - containerPort: 80
