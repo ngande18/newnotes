@@ -1,0 +1,46 @@
+kubectl get rolebindings -n default -o json | jq -r '.items[] | select(.subjects[]?.name == "my-service-account") | .metadata.name'
+
+kubectl describe rolebinding <rolebinding-name> -n default
+
+kubectl get rolebindings -n default -o json | jq -r '.items[] | select(.subjects[]?.name == "my-service-account") | .metadata.name'
+
+
+kubectl get clusterrolebindings -o json | jq -r '.items[] | select(.subjects[]?.name == "my-service-account" and .subjects[]?.kind == "ServiceAccount") | .metadata.name'
+
+
+# Get the secret associated with the service account
+SECRET_NAME=$(kubectl get serviceaccount my-service-account -o jsonpath='{.secrets[0].name}')
+
+# Retrieve the token
+kubectl get secret $SECRET_NAME -o jsonpath='{.data.token}' | base64 --decode
+
+
+# Get cluster information
+CLUSTER_NAME=$(kubectl config current-context)
+CLUSTER_SERVER=$(kubectl config view -o jsonpath="{.clusters[?(@.name==\"$CLUSTER_NAME\")].cluster.server}")
+CA_CERT=$(kubectl get secret $SECRET_NAME -o jsonpath='{.data.ca\.crt}' | base64 --decode)
+
+
+# Get cluster information
+CLUSTER_NAME=$(kubectl config current-context)
+CLUSTER_SERVER=$(kubectl config view -o jsonpath="{.clusters[?(@.name==\"$CLUSTER_NAME\")].cluster.server}")
+CA_CERT=$(kubectl get secret $SECRET_NAME -o jsonpath='{.data.ca\.crt}' | base64 --decode)
+
+
+apiVersion: v1
+clusters:
+- cluster:
+    server: $CLUSTER_SERVER
+    certificate-authority-data: $(echo "$CA_CERT" | base64 | tr -d '\n')
+  name: my-cluster
+contexts:
+- context:
+    cluster: my-cluster
+    user: my-service-account
+  name: my-context
+current-context: my-context
+kind: Config
+users:
+- name: my-service-account
+  user:
+    token: $(kubectl get secret $SECRET_NAME -o jsonpath='{.data.token}' | base64 --decode)
