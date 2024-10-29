@@ -1,3 +1,7 @@
+
+Failed to pull image "artifactory.mtb.com/docker-registryredhatio-remote-auth-test/rhel9/support-tools": rpc error: code = Unknown desc = reading manifest latest in artifactory.mtb.com/docker-registryredhatio-remote-auth-test/rhel9/support-tools: unauthorized: The client does not have permission for manifest: Download request for repo:path 'docker-registryredhatio-remote-auth-test-cache:rhel9/support-tools/latest/list.manifest.json' is forbidden for user: 'anonymous'.
+
+
 kubectl get rolebindings -n default -o json | jq -r '.items[] | select(.subjects[]?.name == "my-service-account") | .metadata.name'
 
 kubectl describe rolebinding <rolebinding-name> -n default
