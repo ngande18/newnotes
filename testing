@@ -1,0 +1,33 @@
+Regarding PCF to OpenShift Migration:
+
+-	We successfully completed PCF to OpenShift Migration around 990 application.  I always feel that it is culture adaption to do this migration. As Openshit new to the ecosystem, we decided to lot of lunch and Learn to provide familiiaity with openshift. 
+-	As a part of Center of Enablement team, it involved architecting and automating entire openshift eco system – that involves Openshift cluster deployment with Terrafrom and ansible and Also ArgoCD deployment for Day-2 Operations  to maintain the cluster as well as deploy applications
+-	Regarding PCF migration it involves education app developers following 
+o	Changes needed to migrate from PCF tile to openshift for Java/any application 
+o	Review Technical requirements for migration
+	Namespace
+	Egress filrewalls
+	Code changes
+	Moving observlabilty newrelic to Dynatrace
+	Building Helm chart as part of CICD pipeline and configure ArgoCD application to deploy app in openshift
+o	Here is the deployment high level steps
+	Fetch code from GitHub
+	Build code and Docker image
+	Push Docker image to Quay
+	Generate deployment file using Helm.
+	Push deployment file to GitHub
+	Argo CD detects a new deployment file.
+	Argo CD deploys the app deployment file into OpenShift.
+	OpenShift fetches the Docker image from Quay
+	Validation job execution
+	Argo Rollout promote
+o	Not only that, provide support about Access and config server setup and sealed secret to maintain secret
+o	Educatiing app team to for splunk logging and change PCF key to OSCP key
+	Like cf_app_name to Kubernetes.lables.app
+	cf_space_name to Kubernetes.namespace
+	ip to kubnerentes.host
+Regarding the VMware to Openshift Migration:
+-	as  Newly braodcom merger with VMware, we are in the process of developing ecosystem with openshift virtualization
+-	we successfully developed our sandbox env through openshift virtualization – with openshift pipeline and openshift virtualization and ansible tower
+-	also I am proudly say that, I am a certified openshift virtualization specialist
+-	Regarding scripting, I am very good with Python and Shell and  also investing my time golang – already created a simple inhouse operator  - I consider myself  as platform architect instead of application developer – I can undersnad Java – but can not write the a application 
