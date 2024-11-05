@@ -1,0 +1,33 @@
+helm pull:
+
+through NETRC:
+
+export NETRC=/path/to/your/custom/.netrc
+
+helm repo add my-repo https://myprivaterepo.com/charts
+helm pull my-repo/my-chart
+  
+NETRC file example:
+machine repo1.com
+login user1
+password pass1
+
+machine repo2.com
+login user2
+password pass2
+
+Through K8s secret
+
+
+
+kubectl create secret docker-registry my-oci-secret \
+  --docker-server=my-oci-registry.com \
+  --docker-username=myuser \
+  --docker-password=my-password \
+  --docker-email=my-email@example.com
+
+helm registry login my-oci-registry.com --username myuser --password $(kubectl get secret my-oci-secret -o jsonpath='{.data.password}' | base64 --decode)
+helm pull oci://my-oci-registry.com/my-chart
+
+as per Doc: Helm should be in above 3.7 
+
