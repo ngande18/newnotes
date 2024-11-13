@@ -1,0 +1,14 @@
+oc exec $(oc get pods -n openshift-etcd -l app=etcd -o=jsonpath='{.items[0].metadata.name}')  -n openshift-etcd -- bash -c "etcdctl endpoint health -w table && etcdctl endpoint status -w table --cluster"\n
+
+
+983  kgp -l io.kubernetes.container.name=etcdctl -q
+ 1984  kgp -l io.kubernetes.container.name=etcdctl
+ 1986  oc get pods -l io.kubernetes.container.name=etcdctl -A
+ 1999  for n in $(oc get nodes -l node-role.kubernetes.io/master= -o name   | head -1); do echo $n; oc debug node/$n --as-root=true -- chroot /host sh -c "/crictl exec `crictl ps --label io.kubernetes.container.name=etcdctl -q` etcdctl endpoint health"; done
+ 2000  for n in $(oc get nodes -l node-role.kubernetes.io/master= -o name   | head -1); do echo $n; oc debug node/$n --as-root=true -- chroot /host sh -c "crictl exec `crictl ps --label io.kubernetes.container.name=etcdctl -q` etcdctl endpoint health"; done
+ 2001  for n in $(oc get nodes -l node-role.kubernetes.io/master= -o name   | head -1); do echo $n; oc debug $n --as-root=true -- chroot /host sh -c "crictl exec `crictl ps --label io.kubernetes.container.name=etcdctl -q` etcdctl endpoint health"; done
+ 2003  for n in $(oc get nodes -l node-role.kubernetes.io/master= -o name   | head -1); do echo $n; oc debug node/$n --as-root=true -- chroot /host sh -c "/usr/bin/crictl exec `/usr/bin/crictl ps --label io.kubernetes.container.name=etcdctl -q` etcdctl endpoint health"; done
+ 3508  oc exec $(oc get pods -n openshift-etcd -l app=etcd -o=jsonpath='{.items[0].metadata.name}')  -n openshift-etcd -- bash -c "etcdctl endpoint health -w table && etcdctl endpoint status -w table --cluster"
+ 3524  oc logs pod/etcd-ip-10-29-41-46.gp-2-nonprod.openshift.cignacloud.com -c etcdctl
+ 3879  oc exec $(oc get pods -n openshift-etcd -l app=etcd -o=jsonpath='{.items[0].metadata.name}')  -n openshift-etcd -- bash -c "etcdctl endpoint health -w table && etcdctl endpoint status -w table --cluster"\n
+ 9099  oc rsh -n openshift-etcd -c etcdctl $ETCD_POD
