@@ -1,5 +1,5 @@
 oc exec $(oc get pods -n openshift-etcd -l app=etcd -o=jsonpath='{.items[0].metadata.name}')  -n openshift-etcd -- bash -c "etcdctl endpoint health -w table && etcdctl endpoint status -w table --cluster"\n
-
+https://docs.openshift.com/container-platform/4.10/backup_and_restore/control_plane_backup_and_restore/replacing-unhealthy-etcd-member.html
 
 983  kgp -l io.kubernetes.container.name=etcdctl -q
  1984  kgp -l io.kubernetes.container.name=etcdctl
@@ -12,3 +12,8 @@ oc exec $(oc get pods -n openshift-etcd -l app=etcd -o=jsonpath='{.items[0].meta
  3524  oc logs pod/etcd-ip-10-29-41-46.gp-2-nonprod.openshift.cignacloud.com -c etcdctl
  3879  oc exec $(oc get pods -n openshift-etcd -l app=etcd -o=jsonpath='{.items[0].metadata.name}')  -n openshift-etcd -- bash -c "etcdctl endpoint health -w table && etcdctl endpoint status -w table --cluster"\n
  9099  oc rsh -n openshift-etcd -c etcdctl $ETCD_POD
+
+
+crictl exec -it `crictl ps --label "io.kubernetes.container.name=etcd" -q` etcdctl endpoint status -w table
+
+
